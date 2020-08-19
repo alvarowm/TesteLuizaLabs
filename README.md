@@ -23,3 +23,5 @@ Para testes usei o Rest-assured, subindo um contexto do Spring e executando os m
  Utilizei Swagger para documentar e para acessar basta inserir swagger-ui.htm no final da url, exemplo:
   
   http://localhost:8080/swagger-ui.htm
+  
+  Como se tratam de serviços, criei dois arquivos Dockerfile para facilitar a criação de imagens e seu deploy em um container, simulando o que se faz no dia a dia.
