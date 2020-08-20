@@ -31,6 +31,7 @@ public class ApplicationTests {
 	public void contextLoads() {
 	}
 
+	//cliente inserido na subida do sistema deve estar ok.
 	@Test
 	public void cliente200ComID1() {
 
@@ -40,13 +41,13 @@ public class ApplicationTests {
 	}
 
 	@Test
-	public void clientes() {
+	public void testRequisitarTodosOsclientes() {
 		ValidatableResponse response = given().port(porta).when().get("v1/clientes/").then();
 		assertThat(response.extract().jsonPath().getList("$").size(), equalTo(3));
 	}
 
 	@Test
-	public void deleteEInsert() throws JSONException {
+	public void testDeleteEInsert() throws JSONException {
 
 		ValidatableResponse response = requisitarTodosOsRegistros();
 
@@ -79,6 +80,30 @@ public class ApplicationTests {
 		ValidatableResponse response;
 		response = given().port(porta).when().get("v1/clientes/").then();
 		return response;
+	}
+	
+	//caso se tente inserir duaz vezes o mesmo cliente, não deve deixar adicionar
+	@Test
+	public void testAdicionarDuasVezes() {
+		
+		Map<String, String> map = new HashMap<String, String>();		
+
+		map.put("nomeDoCliente", "Cliente do Teste.");
+		map.put("email", "emailDeTeste@abc.com");
+		map.put("dataNascimento", "1950-10-01");
+		
+		given().contentType("application/json").body(map).port(porta).post("v1/clientes/").then();
+		
+		int numeroDeRegistros = requisitarTodosOsRegistros().extract().jsonPath().getList("$").size();
+		
+		given().contentType("application/json").body(map).port(porta).post("v1/clientes/").then();
+		
+		int numeroDeRegistrosAposSegundaInsercao = requisitarTodosOsRegistros().extract().jsonPath().getList("$").size();
+		
+		assertEquals(numeroDeRegistros, numeroDeRegistrosAposSegundaInsercao);
+		
+		given().port(porta).delete("v1/clientes/" + numeroDeRegistros);
+		
 	}
 
 }

@@ -57,11 +57,10 @@ public class ClienteRestController {
 	public ResponseEntity<Object> adicionarCliente(@Valid @RequestBody Cliente cliente) {
 		Cliente clienteDaBase = service.findByEmail(cliente.getEmail());
 		if (clienteDaBase != null) {
-			if (!service.haCampanhasCadastradas(clienteDaBase.getId())) {
+			if (!service.haCampanhasCadastradas(clienteDaBase.getId()) && cliente.getTimeDoCoracao() != null) {
 				List<Campanha> campanhas = campanhaService.buscarCampanhasPorTime(cliente.getTimeDoCoracao().getId());
 				return new ResponseEntity<Object>(campanhas, HttpStatus.OK) ;
-			} 
-			else
+			} else
 				return new ResponseEntity<Object>(JAH_CADASTRADO, HttpStatus.OK) ;
 		}
 		service.relacionarCampanhasPorTime(cliente);
