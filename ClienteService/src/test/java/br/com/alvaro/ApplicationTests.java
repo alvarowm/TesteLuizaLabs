@@ -35,8 +35,8 @@ public class ApplicationTests {
 	@Test
 	public void cliente200ComID1() {
 
-		given().port(porta).when().get("v1/clientes/{id}", 1).then().statusCode(200).body("nomeDoCliente",
-				equalTo("Alberto Andrade"));
+		given().port(porta).when().get("v1/clientes/{id}", 2).then().statusCode(200).body("nomeDoCliente",
+				equalTo("Barbara Barros"));
 
 	}
 
@@ -102,7 +102,7 @@ public class ApplicationTests {
 		
 		assertEquals(numeroDeRegistros, numeroDeRegistrosAposSegundaInsercao);
 		
-		given().port(porta).delete("v1/clientes/" + numeroDeRegistros);
+		given().port(porta).delete("v1/clientes/{id}", String.valueOf(numeroDeRegistros));
 		
 	}
 
