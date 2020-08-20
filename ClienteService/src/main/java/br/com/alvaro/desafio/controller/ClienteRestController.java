@@ -30,6 +30,10 @@ import io.swagger.annotations.ApiResponse;
 @RequestMapping(value="/v1")
 public class ClienteRestController {
 
+	private static final String CLIENTE_EXCLUIDO = "Cliente excluído.";
+
+	private static final String CLIENTE_ATUALIZADO = "Cliente atualizado.";
+
 	@Autowired
 	ClienteService service;
 	
@@ -37,12 +41,14 @@ public class ClienteRestController {
 	CampanhaService campanhaService;
 	
 	private static final String JAH_CADASTRADO = "Usuário já cadastrado.";
+	
+	private static final String NAO_HA_CLIENTE_CADASTRADO = "Não há cliente cadastrado.";
 
 	@ApiOperation(value = "Retorna clientes.", httpMethod = "GET")
 	@ApiResponse(code = 200, message = "Retorna os clientes cadastrados")
 	@GetMapping("/clientes")
-	public List<Cliente> listarClientes() {
-		return service.buscarClientes();
+	public ResponseEntity<Object> listarClientes() {
+		return new ResponseEntity<Object>(service.buscarClientes(), HttpStatus.OK);
 	}
 
 	@ApiOperation(value = "Adiciona um cliente.", httpMethod = "POST")
@@ -65,21 +71,32 @@ public class ClienteRestController {
 	@ApiOperation(value = "Exibe um ciente.", httpMethod = "GET")
 	@ApiResponse(code = 200, message = "Cliente")
 	@GetMapping("clientes/{id}")
-	public Cliente exibirCliente(@PathVariable(value="id") Long id, Model model) {
-		return service.buscarCliente(id);
+	public ResponseEntity<Object> exibirCliente(@PathVariable(value="id") Long id, Model model) {
+		return new ResponseEntity<Object>(service.buscarCliente(id), HttpStatus.OK);
 	}
 
 	@ApiOperation(value = "Atualiza um cliente.", httpMethod = "PUT")
-	@ApiResponse(code = 201, message = "Cliente atualizado.")
+	@ApiResponse(code = 200, message = CLIENTE_ATUALIZADO)
 	@PutMapping("/clientes/{id}")
-	public Cliente atualizarCampanha(@PathVariable("id") long id, @Valid  @RequestBody Cliente cliente) {
-		return service.atualizarCliente(cliente, id);
+	public ResponseEntity<Object> atualizarCampanha(@PathVariable("id") long id, @Valid  @RequestBody Cliente cliente) {
+		Cliente clienteDaBase = service.atualizarCliente(cliente, id);
+
+		if (clienteDaBase == null)
+			return new ResponseEntity<Object>(NAO_HA_CLIENTE_CADASTRADO, HttpStatus.NOT_FOUND);
+
+		return new ResponseEntity<Object>(CLIENTE_ATUALIZADO, HttpStatus.OK); 
 	}
 
 	@ApiOperation(value = "Cliente excluído", httpMethod = "DELETE")
-	@ApiResponse(code = 200, message = "Cliente excluído.")
+	@ApiResponse(code = 200, message = CLIENTE_EXCLUIDO)
 	@DeleteMapping("/clientes/{id}")
-	public void apagarCliente(@PathVariable("id") long id, Model model) {
+	public ResponseEntity<Object> apagarCliente(@PathVariable("id") long id, Model model) {
+		Cliente clienteDaBase = service.buscarCliente(id);
+
+		if (clienteDaBase == null)
+			return new ResponseEntity<Object>(NAO_HA_CLIENTE_CADASTRADO, HttpStatus.NOT_FOUND);
+	
 		service.apagarCliente(id);
+		return new ResponseEntity<Object>(CLIENTE_EXCLUIDO, HttpStatus.OK);
 	}
 }
